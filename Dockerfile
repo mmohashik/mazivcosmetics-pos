@@ -1,6 +1,6 @@
 FROM php:8.1-apache
 
-# Install system dependencies
+# Install system dependencies and PHP extensions in one layer
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -9,40 +9,36 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libzip-dev
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
-
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
-
-# Set working directory
-WORKDIR /var/www/html
-
-# Copy existing application directory contents
-COPY . /var/www/html
+    libzip-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl gd zip \
+    && a2enmod rewrite \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install dependencies
-RUN composer install --optimize-autoloader --no-interaction
+# Set working directory
+WORKDIR /var/www/html
 
-# Generate application key and optimize for production
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
-RUN php artisan view:cache || true
+# Copy composer files first for better caching
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Copy application code
+COPY . .
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Configure Apache
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+
+# Generate Laravel optimizations
+RUN php artisan config:cache || true
 
 # Expose port 80
 EXPOSE 80
