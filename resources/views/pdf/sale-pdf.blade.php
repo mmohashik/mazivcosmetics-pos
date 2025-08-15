@@ -2,166 +2,253 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    <title>{{ __('messages.sale_pdf') }}</title>
+    <title>Sale Invoice</title>
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon.ico') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- Fonts -->
-    <!-- General CSS Files -->
-    <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
     <style>
         * {
-            font-family: DejaVu Sans, Arial, "Helvetica", Arial, "Liberation Sans", sans-serif;
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            line-height: 1.3;
         }
-
-        @if(getLoginUserLanguage() !='ar')
-            .fw-bold {
-            font-weight: 500;
+        
+        body {
+            margin: 0;
+            padding: 10px;
             color: #333;
         }
-
-        @else
-        .fw-bold {
-            /*font-weight: 500;*/
-            color: #333;
+        
+        .header {
+            margin-bottom: 20px;
         }
-
-        @endif
-
-        @if(getLoginUserLanguage() =='vi')
-            .vi-bold-text {
-                font-size: 14px;
-                font-weight: bolder;
-                color: #333;
-            }
-
-            .vi-light-text {
-                font-size: 16px;
-            }
-        @endif
-
-        .fw-light {
-            font-weight: 500;
-            color: grey;
+        
+        .invoice-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .invoice-number {
+            font-size: 14px;
+            font-weight: bold;
+            color: #3498db;
+            text-align: center;
+        }
+        
+        .info-box {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .info-header {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .info-body {
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        
+        .info-row {
+            margin-bottom: 5px;
+        }
+        
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 100px;
+        }
+        
+        .value {
+            color: #555;
+        }
+        
+        .company-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .summary-table {
+            width: 50%;
+            float: right;
+            margin-top: 20px;
+        }
+        
+        .summary-table td {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+        
+        .logo {
+            height: 60px;
+        }
+        
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
         }
     </style>
-
 </head>
 <body>
-
-<table width="100%">
-    <tr>
-        <td>
-            <img src="{{$companyLogo}}" alt="Company Logo" width="80px">
-        </td>
-        <td align="center" style="vertical-align: bottom">
-            <h2 style="color: dodgerblue;">{{ $sale->reference_code }}</h2>
-        </td>
-        <td width="30%" style="line-height: 5px;">
-            <h4 class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Date' : __('messages.pdf.date') }}: <span
-                        class="fw-light vi-light-text">{{ \Carbon\Carbon::parse($sale->created_at)->format('Y-m-d') }}</span></h4>
-            <h4 class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Number' : __('messages.pdf.number') }}: <span
-                        class="fw-light vi-light-text">{{ $sale->reference_code }}</span></h4>
-            <h4 class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Payment Status' : __('messages.pdf.payment_status') }}: <span
-                        class="fw-light vi-light-text">{{ $sale->payment_status == \App\Models\Sale::PAID ? 'Paid' : 'Unpaid' }}</span>
-            </h4>
-        </td>
-    </tr>
-</table>
-<table width="100%" style="margin-top: 40px;">
-    <tr style="vertical-align: top;">
-        <td style="width: 50%;">
-            <table width="95%" cellpadding="0">
-                <tr style="background-color: dodgerblue;">
-                    <td style="color: #fff;padding: 10px;font-size: 18px;">{{ getLoginUserLanguage() == 'cn' ? 'Customer Info' : __('messages.pdf.customer_info') }}</td>
-                </tr>
-                <tr style="background-color: #f5f3f3;">
-                    <td style="padding: 10px;">
-                        <p class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Name' : __('messages.pdf.name') }}: <span
-                                    class="fw-light vi-light-text">{{ isset($sale->customer->name) ? $sale->customer->name : 'N/A' }}</span>
-                        </p>
-                        <p class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Phone' : __('messages.pdf.phone') }}: <span
-                                    class="fw-light vi-light-text">{{ isset($sale->customer->phone) ? $sale->customer->phone : 'N/A' }}</span>
-                        </p>
-                        <p class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Address' : __('messages.pdf.address') }}: <span class="fw-light vi-light-text">
-                                {{ isset($sale->customer->address) ? $sale->customer->address : '' }}
-                                {{ isset($sale->customer->city) ? $sale->customer->city : '' }}
-                                {{ isset($sale->customer->country) ? $sale->customer->country : '' }}
-                            </span></p>
-                        <p class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Email' : __('messages.pdf.email') }}: <span
-                                    class="fw-light vi-light-text">{{ isset($sale->customer->email) ? $sale->customer->email : ''}}</span>
-                        </p>
-                    </td>
-                </tr>
-            </table>
-        </td>
-        <td style="width: 50%;">
-            <table width="95%" align="right">
-                <tr style="background-color: dodgerblue;">
-                    <td style="color: #fff;padding: 10px;font-size: 18px;">{{ getLoginUserLanguage() == 'cn' ? 'Company Info' : __('messages.pdf.company_info') }}</td>
-                </tr>
-                <tr style="background-color: #f5f3f3;">
-                    <td style="padding: 10px;">
-                        <h3 style="color: #333;">{{ getSettingValue('company_name') }}</h3>
-                        <p class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Address' : __('messages.pdf.address') }}: <span
-                                    class="fw-light vi-light-text">{{ getSettingValue('address') }}</span></p>
-                        <p class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Phone' : __('messages.pdf.phone') }}: <span
-                                    class="fw-light vi-light-text">{{ getSettingValue('phone') }}</span></p>
-                        <p class="fw-bold vi-bold-text">{{ getLoginUserLanguage() == 'cn' ? 'Email' : __('messages.pdf.email') }}: <span
-                                    class="fw-light vi-light-text">{{ getSettingValue('email') }}</span></p>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
-<table width="100%" cellspacing="0" cellpadding="10" style="margin-top: 40px;">
-    <thead>
-    <tr style="background-color: dodgerblue;">
-        <th style="color: #fff;">{{ getLoginUserLanguage() == 'cn' ? 'Product' : __('messages.pdf.product') }}</th>
-        <th style="color: #fff;">{{ getLoginUserLanguage() == 'cn' ? 'UNIT PRICE' : __('messages.pdf.unit_price') }}</th>
-        <th style="color: #fff;">{{ getLoginUserLanguage() == 'cn' ? 'QUANTITY' : __('messages.pdf.quantity') }}</th>
-        <th style="color: #fff;">{{ getLoginUserLanguage() == 'cn' ? 'DISCOUNT' : __('messages.heading_discount') }}</th>
-        <th style="color: #fff;">{{ getLoginUserLanguage() == 'cn' ? 'TAX' : __('messages.pdf.tax') }}</th>
-        <th style="color: #fff;">{{ getLoginUserLanguage() == 'cn' ? 'TOTAL' : __('messages.heading_total') }}</th>
-    </tr>
-    </thead>
-    <tbody style="background-color: #f5f3f3;">
-    @foreach($sale->saleItems  as $saleItem)
-        <tr align="center">
-            <td>{{$saleItem->product->name}}</td>
-            <td>{{ currencyAlignment(number_format((float)$saleItem->net_unit_price, 2))}}</td>
-            <td>{{$saleItem->quantity}}</td>
-            <td>{{ currencyAlignment(number_format((float)$saleItem->discount_amount, 2))}}</td>
-            <td>{{ currencyAlignment(number_format((float)$saleItem->tax_amount, 2))}}</td>
-            <td>{{ currencyAlignment(number_format((float)$saleItem->sub_total, 2))}}</td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-<table width="60%" align="right" cellspacing="0" cellpadding="10" style="margin-top: 40px;">
-    <tbody style="background-color: #f5f3f3;">
-    <tr>
-        <td>{{ getLoginUserLanguage() == 'cn' ? 'Order Tax' : __('messages.pdf.order_tax') }}</td>
-        <td>{{ currencyAlignment(number_format((float)$sale->tax_amount, 2))}}</td>
-    </tr>
-    <tr>
-        <td>{{ getLoginUserLanguage() == 'cn' ? 'Discount' : __('messages.pdf.discount') }}</td>
-        <td>{{ currencyAlignment(number_format((float)$sale->discount, 2))}}</td>
-    </tr>
-    <tr>
-        <td>{{ getLoginUserLanguage() == 'cn' ? 'Shipping' : __('messages.pdf.shipping') }}</td>
-        <td>{{currencyAlignment(number_format((float)$sale->shipping, 2))}}</td>
-    </tr>
-    <tr>
-        <td>{{ getLoginUserLanguage() == 'cn' ? 'Total' : __('messages.pdf.total') }}</td>
-        <td>{{currencyAlignment(number_format((float)$sale->grand_total, 2))}}</td>
-    </tr>
-
-    <tr>
-        <td>{{ getLoginUserLanguage() == 'cn' ? 'Paid Amount' : __('messages.pdf.paid_amount') }}</td>
-        <td>{{currencyAlignment(number_format((float)$sale->payments->sum('amount'), 2))}}</td>
-    </tr>
-    </tbody>
-</table>
+    <div class="header clearfix">
+        <div style="float: left; width: 20%;">
+            <img src="{{$companyLogo}}" alt="Company Logo" class="logo">
+        </div>
+        <div style="float: left; width: 60%; text-align: center;">
+            <div class="invoice-title">{{ getSettingValue('company_name') }}</div>
+            <div class="invoice-number">INVOICE #{{ $sale->reference_code }}</div>
+        </div>
+        <div style="float: right; width: 20%; text-align: right;">
+            <div><strong>Date:</strong> {{ \Carbon\Carbon::parse($sale->created_at)->format('Y-m-d') }}</div>
+            <div><strong>Status:</strong> 
+                {{ $sale->payment_status == \App\Models\Sale::PAID ? 'Paid' : 'Unpaid' }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="clearfix" style="margin-top: 20px;">
+        <div style="float: left; width: 48%; margin-right: 2%;">
+            <div class="info-box">
+                <div class="info-header">CUSTOMER INFORMATION</div>
+                <div class="info-body">
+                    <div class="info-row">
+                        <span class="label">Name:</span>
+                        <span class="value">{{ $sale->customer->name ?? 'N/A' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone:</span>
+                        <span class="value">{{ $sale->customer->phone ?? 'N/A' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Address:</span>
+                        <span class="value">
+                            {{ $sale->customer->address ?? '' }}
+                            {{ $sale->customer->city ?? '' }}
+                            {{ $sale->customer->country ?? '' }}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email:</span>
+                        <span class="value">{{ $sale->customer->email ?? '' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="float: right; width: 48%; margin-left: 2%;">
+            <div class="info-box">
+                <div class="info-header">COMPANY INFORMATION</div>
+                <div class="info-body">
+                    <div class="company-name">{{ getSettingValue('company_name') }}</div>
+                    <div class="info-row">
+                        <span class="label">Address:</span>
+                        <span class="value">{{ getSettingValue('address') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone:</span>
+                        <span class="value">{{ getSettingValue('phone') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email:</span>
+                        <span class="value">{{ getSettingValue('email') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>PRODUCT</th>
+                <th class="text-right">UNIT PRICE</th>
+                <th class="text-center">QTY</th>
+        
+            
+                <th class="text-right">TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($sale->saleItems as $saleItem)
+            <tr>
+                <td>{{ $saleItem->product->name }}</td>
+                <td class="text-right">{{ currencyAlignment(number_format((float)$saleItem->net_unit_price, 2)) }}</td>
+                <td class="text-center">{{ $saleItem->quantity }}</td>
+            
+                <td class="text-right">{{ currencyAlignment(number_format((float)$saleItem->sub_total, 2)) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    
+    <div class="clearfix">
+        <table class="summary-table">
+            
+            <tr class="total-row">
+                <td>GRAND TOTAL:</td>
+                <td class="text-right">{{ currencyAlignment(number_format((float)$sale->grand_total, 2)) }}</td>
+            </tr>
+            <tr>
+                <td>Paid Amount:</td>
+                <td class="text-right">{{ currencyAlignment(number_format((float)$sale->payments->sum('amount'), 2)) }}</td>
+            </tr>
+            @if($sale->payment_status == \App\Models\Sale::UNPAID)
+            <tr class="total-row">
+                <td>DUE AMOUNT:</td>
+                <td class="text-right">{{ currencyAlignment(number_format((float)($sale->grand_total - $sale->payments->sum('amount')), 2)) }}</td>
+            </tr>
+            @endif
+        </table>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center; font-size: 9px; color: #777;">
+        Thank you for your business!
+    </div>
 </body>
 </html>
