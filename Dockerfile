@@ -31,6 +31,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Ensure public directory exists
+RUN mkdir -p /var/www/html/public
+
 # Configure Apache
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
