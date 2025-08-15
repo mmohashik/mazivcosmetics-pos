@@ -1,0 +1,28 @@
+# 🚀 GitHub Upload Commands
+
+## After creating your GitHub repository, run these commands:
+
+# Replace YOUR_GITHUB_USERNAME with your actual GitHub username
+git remote add origin https://github.com/YOUR_GITHUB_USERNAME/mazivcosmetics-pos.git
+git push -u origin main
+
+## Example (if your username is "johnsmith"):
+# git remote add origin https://github.com/johnsmith/mazivcosmetics-pos.git
+# git push -u origin main
+
+## Your code is ready to upload! ✅
+
+### What's included in your repository:
+- ✅ Complete Laravel POS System
+- ✅ Database migrations and seeders
+- ✅ React frontend components
+- ✅ Production deployment files
+- ✅ Railway deployment guide
+- ✅ Environment configuration files
+
+### Repository will be named: mazivcosmetics-pos
+
+### After upload, you can:
+1. Deploy to Railway.app for FREE hosting
+2. Use the domain: mazivcosmetics.store
+3. Access admin with: ahshanashraff@gmail.com / 123456
