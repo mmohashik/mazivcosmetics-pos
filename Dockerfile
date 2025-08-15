@@ -37,6 +37,12 @@ COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 # Generate Laravel optimizations
 RUN php artisan config:cache || true
 
+# Create .env file if it doesn't exist
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
+
+# Generate application key
+RUN php artisan key:generate --force || true
+
 # Expose port 80
 EXPOSE 80
 
