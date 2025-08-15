@@ -9,7 +9,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "barryvdh/laravel-dompdf": "^2.0",
         "brotzka/laravel-dotenv-editor": "^2.1",
         "doctrine/dbal": "^3.5",
