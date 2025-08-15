@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl gd zip \
+    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl gd zip \
     && a2enmod rewrite \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -46,8 +46,25 @@ RUN if [ ! -f .env ]; then cp .env.example .env; fi
 # Generate application key
 RUN php artisan key:generate --force || true
 
+# Create database directory for SQLite fallback
+RUN mkdir -p /var/www/html/database
+
+# Set proper permissions for database
+RUN chown -R www-data:www-data /var/www/html/database \
+    && chmod -R 775 /var/www/html/database
+
 # Expose port 80
 EXPOSE 80
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Create a startup script
+RUN echo '#!/bin/bash\n\
+# Wait for database to be ready\n\
+sleep 5\n\
+# Run migrations and seeders\n\
+php artisan migrate --force || true\n\
+php artisan db:seed --force || true\n\
+# Start Apache\n\
+exec apache2-foreground' > /start.sh && chmod +x /start.sh
+
+# Start with our custom script
+CMD ["/start.sh"]
